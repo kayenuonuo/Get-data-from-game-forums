@@ -1,22 +1,30 @@
-from zhu import ask
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+import uvicorn
 
-def main():
-    print("=" * 50)
-    print("游戏情报 Agent 已启动，输入 q 退出")
-    print("=" * 50)
+from agent import agent_executor   # ← 直接 import 你写好的 AgentExecutor
 
-    while True:
-        question = input("\n你: ").strip()
-        if question.lower() in ("q", "quit", "exit"):
-            print("再见 👋")
-            break
-        if not question:
-            continue
-        try:
-            answer = ask(question)
-            print(f"\nAgent: {answer}")
-        except Exception as e:
-            print(f"\n[错误] {type(e).__name__}: {e}")
+app = FastAPI()
+
+
+# ========== 1. 请求体模型 ==========
+class ChatRequest(BaseModel):
+    message: str
+
+
+# ========== 2. 首页，返回 HTML ==========
+@app.get("/")
+async def index():
+    return FileResponse(path="./index.html")
+
+
+# ========== 3. 聊天接口，调用你的 Agent ==========
+@app.post("/chat")
+async def chat(req: ChatRequest):
+    result = await agent_executor.ainvoke({"input": req.message})
+    return {"data": result["output"]}
+
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="127.0.0.1", port=8001)
