@@ -1,4 +1,4 @@
-# AGET-model-ZHIPU
+# 游戏咨询助手 
 通过fastapi and 智谱，做了一个网页对话助手，可以当作 你想要获取某个游戏论坛的游戏信息使用。
 
 agent 是 用于创建AGENT 
